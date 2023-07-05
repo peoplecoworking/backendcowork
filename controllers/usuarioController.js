@@ -77,7 +77,7 @@ const registrar = async (req, res) => {
     usuario.token = generarId();
 
     // Enviamos el email de confirmacion
-    emailRegistro({
+    await emailRegistro({
       email: usuario.email,
       nombre: usuario.nombre,
       token: usuario.token,
@@ -177,7 +177,7 @@ const olvidePassword = async (req, res) => {
     await usuario.save();
 
     //Enviar Email de recupero de contraseña
-    emailOlvidePassword({
+    await emailOlvidePassword({
       email: usuario.email,
       nombre: usuario.nombre,
       token: usuario.token,
