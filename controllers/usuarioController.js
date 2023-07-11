@@ -64,6 +64,7 @@ const editarUsuario = async (req, res) => {
 const registrar = async (req, res) => {
   //Evita registros duplicados
   const { email } = req.body;
+  const { id } = req.body;
 
   const existeUsuario = await Usuario.findOne({ email });
 
@@ -75,14 +76,16 @@ const registrar = async (req, res) => {
   try {
     const usuario = new Usuario(req.body);
     usuario.token = generarId();
+    usuario.cliente = id;
 
     // Enviamos el email de confirmacion
-    await emailRegistro({
-      email: usuario.email,
-      nombre: usuario.nombre,
-      token: usuario.token,
-    });
+    // await emailRegistro({
+    //   email: usuario.email,
+    //   nombre: usuario.nombre,
+    //   token: usuario.token,
+    // });
 
+    await usuario.save();
     res.json({ msg: "Usuario Creado Correctamente." });
   } catch (error) {
     console.log(error);

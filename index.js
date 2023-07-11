@@ -19,6 +19,17 @@ conectarDB();
 
 app.use(cors());
 
+// Contador de peticiones
+let requestCount = 0;
+
+// Middleware para contar peticiones y mostrar un log
+app.use((req, res, next) => {
+  requestCount++;
+  console.log(`Petición recibida (${req.method}): ${req.url}`);
+  console.log(`Número total de peticiones: ${requestCount}`);
+  next();
+});
+
 // Routing
 app.use("/api/usuarios", router);
 app.use("/api/clientes", clientesRouter);

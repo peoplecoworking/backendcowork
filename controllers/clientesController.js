@@ -83,9 +83,10 @@ const adicional = async (req, res) => {
   }
 };
 const asistencias = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
+
   const usuario = await Usuario.findById(id);
-  const asistencia = new Asistencias(req.body);
+  const asistencia = new Asistencias();
   let mensaje = "";
 
   asistencia.nombreUsuario = usuario.nombre + " " + usuario.apellido;
@@ -390,7 +391,7 @@ const eliminarPlan = async (req, res) => {
   res.json({ msg: "Plan eliminado correctamente" });
 };
 
-const cambiarAsistencias = async () => {
+const cambiarAsistencias = async (req, res) => {
   try {
     const usuarios = await Usuario.find({ asistioHoy: true });
     const promises = usuarios.map(async (usuario) => {
@@ -398,7 +399,7 @@ const cambiarAsistencias = async () => {
       await usuario.save();
     });
     await Promise.all(promises);
-    console.log("Asistencias actualizadas");
+    res.json("Asistencias actualizadas");
   } catch (error) {
     console.error("Error al actualizar asistencias:", error);
   }
