@@ -4,8 +4,6 @@ const clienteSchema = mongoose.Schema(
   {
     tipo: {
       type: String,
-      require: true,
-      enum: ["A", "B"],
     },
     nombre: {
       type: String,

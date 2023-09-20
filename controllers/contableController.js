@@ -2,6 +2,47 @@ import Cliente from "../models/Cliente.js";
 import Proveedor from "../models/Proveedor.js";
 import Movimientos from "../models/Movimientos.js";
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+const Afip = require("@afipsdk/afip.js");
+
+const afip = new Afip({
+  CUIT: 20342955119,
+  res_folder: "../backend/afip/", // Asegúrate de que esta ruta sea correcta
+  cert: "sistema-nuevo.pem", // Asegúrate de que esta ruta sea correcta
+  key: "privateKey.key", // Asegúrate de que esta ruta sea correcta
+  production: true,
+});
+
+const pruebaAfip = async () => {
+  try {
+    const details = await afip.RegisterScopeThirteen.getTaxpayerDetails(
+      30716895080
+    );
+    console.log("Detalles del CUIT:", details);
+  } catch (error) {
+    console.error("Error al obtener detalles del CUIT:", error);
+  }
+  // afip.RegisterScopeFive.getTaxpayerDetails(20342955119)
+  //   .then((response) => {
+  //     console.log("Detalles del CUIT:", response);
+  //   })
+  //   .catch((err) => {
+  //     console.error("Error al obtener detalles del CUIT:", err.message);
+  //     console.error(err);
+  //   });
+
+  // afip
+  //   .GetServiceTA("wsfe")
+  //   .then((response) => {
+  //     console.log("Token de Acceso:", response);
+  //   })
+  //   .catch((err) => {
+  //     console.error("Error obteniendo el Token de Acceso:", err);
+  //   });
+};
+
 const obtenerMovimientos = async (req, res) => {
   const movimientos = await Movimientos.find();
 
@@ -130,4 +171,5 @@ export {
   obtenerMovimiento,
   editarMovimiento,
   eliminarMovimiento,
+  pruebaAfip,
 };

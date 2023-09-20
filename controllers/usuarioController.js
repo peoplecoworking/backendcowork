@@ -3,6 +3,19 @@ import generarId from "../helpers/generarId.js";
 import generarJWT from "../helpers/generarJWT.js";
 import { emailRegistro, emailOlvidePassword } from "../helpers/emails.js";
 import Cliente from "../models/Cliente.js";
+import imaps from "imap-simple";
+import dotenv from "dotenv";
+dotenv.config();
+
+const config = {
+  imap: {
+    user: process.env.EMAIL_SALAS,
+    password: process.env.PASSWORD,
+    host: process.env.HOST,
+    port: process.env.PORT,
+    tls: false,
+  },
+};
 
 const obtenerUsuarios = async (req, res) => {
   const usuarios = await Usuario.find();
@@ -254,6 +267,58 @@ const perfil = async (req, res) => {
   res.json(usuario);
 };
 
+async function checkNewEmails() {
+  console.log("Reviso Mails");
+  const connection = await imaps.connect(config);
+
+  await connection.openBox("INBOX");
+  const searchCriteria = ["UNSEEN"];
+  const fetchOptions = {
+    bodies: ["TEXT", "HEADER"],
+    markSeen: true,
+  };
+
+  const results = await connection.search(searchCriteria, fetchOptions);
+
+  for (let email of results) {
+    const body = email.parts.filter((part) => part.which === "TEXT")[0].body;
+    const header = email.parts.filter((part) => part.which === "HEADER")[0]
+      .body;
+
+    const parsedData = parseBookingEmail(body);
+    console.log(parsedData);
+
+    // Obtener el campo Reply-To del encabezado
+    const replyTo = header["reply-to"]
+      ? header["reply-to"][0]
+      : "No Reply-To provided";
+    console.log(`Reply-To: ${replyTo}`);
+
+    // Aquí puedes agregar código para comprobar créditos, etc.
+  }
+}
+
+function parseBookingEmail(content) {
+  // Modificamos la regex para que sea más flexible con los espacios y saltos de línea
+  const regex =
+    /Usuario:\s+(.+)<br\/>.*?Inicio:\s+(.+) @ (.+) \(.+\)<br\/>.*?Fin:\s+(.+) @ (.+) \(.+\)<br\/>.*?Recurso:\s+(.+)<br\/>.*?Título:\s+(.+)<br\/>/s;
+  const match = content.match(regex);
+
+  if (match) {
+    return {
+      user: match[1],
+      startDate: match[2],
+      startTime: match[3],
+      endDate: match[4],
+      endTime: match[5],
+      resource: match[6],
+      title: match[7],
+    };
+  } else {
+    return null;
+  }
+}
+
 export {
   registrar,
   autenticar,
@@ -268,4 +333,5 @@ export {
   obtenerUsuario,
   editarUsuario,
   eliminarUsuario,
+  checkNewEmails,
 };

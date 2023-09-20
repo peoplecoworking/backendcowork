@@ -69,6 +69,7 @@ const nuevoCliente = async (req, res) => {
     console.log(error);
   }
 };
+
 const adicional = async (req, res) => {
   const adicional = new Adicionales(req.body);
 
